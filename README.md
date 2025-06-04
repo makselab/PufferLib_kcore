@@ -16,6 +16,7 @@ This allows more efficient training and inference by taking advantage of symmetr
 - Modified architecture components to allow group-invariant transformations.
 - Custom preprocessing pipeline adjustments to accommodate the symmetry reductions.
 
-> **Note:** These changes are experimental and tailored to research or applications involving structured action spaces.
+> **Note:** These changes are experimental and tailored to research.
 
 The full documentation is hosted at [puffer.ai](https://puffer.ai "PufferLib Documentation"). @jsuarez5341 on [Discord](https://discord.gg/puffer) for support -- post here before opening issues.
+
