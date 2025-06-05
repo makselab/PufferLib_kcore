@@ -6,6 +6,7 @@ import uuid
 import ast
 import os
 
+import torch
 import pufferlib
 import pufferlib.utils
 import pufferlib.vector
@@ -32,18 +33,17 @@ def make_policy(env, policy_cls, rnn_cls, args):
     return policy.to(args['train']['device'])
 
 def make_policy_kcore(env, policy_cls, rnn_cls, args):
-import torch
-
-if not args.get('eval_model_path'):
-    raise ValueError("You must provide a path to a pretrained model in 'eval_model_path'")
-
-print(f"Loading model from {args['eval_model_path']}")
-model = torch.load(args['eval_model_path'], map_location=args['train']['device'])
-
-if not isinstance(model, torch.nn.Module):
-    raise TypeError("Loaded object is not a full model (torch.nn.Module). Did you save with torch.save(model)?")
-
-return model.to(args['train']['device'])
+    
+    if not args.get('eval_model_path'):
+        raise ValueError("You must provide a path to a pretrained model in 'eval_model_path'")
+    
+    print(f"Loading model from {args['eval_model_path']}")
+    model = torch.load(args['eval_model_path'], map_location=args['train']['device'])
+    
+    if not isinstance(model, torch.nn.Module):
+        raise TypeError("Loaded object is not a full model (torch.nn.Module). Did you save with torch.save(model)?")
+    
+    return model.to(args['train']['device'])
 
 def init_wandb(args, name, id=None, resume=True):
     import wandb
@@ -320,8 +320,13 @@ def train(args, make_env, policy_cls, rnn_cls, wandb,
             overwork=args['vec_overwork'],
             backend=vec,
         )
-
-    policy = make_policy(vecenv.driver_env, policy_cls, rnn_cls, args)
+        
+    # DECIDE WHICH POLICY FUNCTION TO USE. USED THE MODIFIED IF COLLAPSE!=0. Matteo Serafino
+    if args.collapse != 0:
+        policy = make_policy_kcore(vecenv.driver_env, policy_cls, rnn_cls, args)
+    else:
+        policy = make_policy(vecenv.driver_env, policy_cls, rnn_cls, args)
+    
 
     '''
     if env_name == 'moba':
@@ -387,8 +392,17 @@ if __name__ == '__main__':
     parser.add_argument('--track', action='store_true', help='Track on WandB')
     parser.add_argument('--wandb-project', type=str, default='pufferlib')
     parser.add_argument('--wandb-group', type=str, default='debug')
+
+
+    # NEW ARGUMENT: FIBER THRESHOLD. Matteo Serafino
+    parser.add_argument('--collapse', type=float, default=0.0,
+        help='Collapse level (float between 0 and 2, 0 = disabled)')
+
     args = parser.parse_known_args()[0]
 
+    # Manual range check. Matteo Serafino
+    if not (0.0 <= args.collapse <= 2.0):
+        raise ValueError(f"--collapse must be between 0 and 2 (got {args.collapse})")
 
     file_paths = glob.glob('config/**/*.ini', recursive=True)
     for path in file_paths:
