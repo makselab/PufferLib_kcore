@@ -31,6 +31,20 @@ def make_policy(env, policy_cls, rnn_cls, args):
 
     return policy.to(args['train']['device'])
 
+def make_policy_kcore(env, policy_cls, rnn_cls, args):
+import torch
+
+if not args.get('eval_model_path'):
+    raise ValueError("You must provide a path to a pretrained model in 'eval_model_path'")
+
+print(f"Loading model from {args['eval_model_path']}")
+model = torch.load(args['eval_model_path'], map_location=args['train']['device'])
+
+if not isinstance(model, torch.nn.Module):
+    raise TypeError("Loaded object is not a full model (torch.nn.Module). Did you save with torch.save(model)?")
+
+return model.to(args['train']['device'])
+
 def init_wandb(args, name, id=None, resume=True):
     import wandb
     wandb.init(
