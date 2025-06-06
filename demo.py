@@ -438,19 +438,18 @@ def run_model_collapse(args, episode=50, default_folder='experiments'):
 
     if not target_file:
         print(f"[collapse] Default file '{expected_filename}' not found. Searching for closest.")
-        # Extract episode number from filenames
+        
         def extract_episode_num(path):
             match = re.search(r'model_(\d{6})\.pt$', path)
             return int(match.group(1)) if match else float('inf')
 
         pt_files_with_episodes = [(f, extract_episode_num(f)) for f in pt_files]
         pt_files_with_episodes = [(f, ep) for f, ep in pt_files_with_episodes if ep != float('inf')]
-
-        # Find closest episode
-        closest_file = min(pt_files_with_episodes, key=lambda x: abs(x[1] - episode))[0]
+        closest_file, closest_episode = min(pt_files_with_episodes, key=lambda x: abs(x[1] - episode))
+        
         print(f"[collapse] Using closest checkpoint: {closest_file}")
         target_file = closest_file
-        episode_used = f"{extract_episode_num(target_file):06d}"
+        episode_used = f"{closest_episode:06d}"
     else:
         episode_used = padded_episode
 
@@ -472,6 +471,23 @@ def run_model_collapse(args, episode=50, default_folder='experiments'):
     torch.save(model_collapse_lstm, model_out_path)
 
     print(f"[collapse] Saved collapsed model to: {model_out_path}")
+
+    # Update args with new model path and data directory
+    args['train']['data-dir'] = output_folder
+    args['eval_model_path'] = model_out_path
+
+    # Compute adjusted total_timesteps for exactly 300 training steps
+    try:
+        batch_size = args['train']['batch_size']
+        total_target_steps = 300
+        episode_number = int(episode_used)
+        remaining_steps = total_target_steps - episode_number
+        new_total_timesteps = remaining_steps * batch_size
+        args['train']['total_timesteps'] = new_total_timesteps
+        print(f"[collapse] Updated total_timesteps to {new_total_timesteps} for {remaining_steps} steps from episode {episode_number}.")
+    except Exception as e:
+        print(f"[collapse] Warning: Could not update total_timesteps. {e}")
+
     return model_out_path
 
 
@@ -589,7 +605,11 @@ if __name__ == '__main__':
         # Collapse the model before training. Matteo Serafino
         if args['collapse']!=0:
             run_model_collapse(args,episode = 50)
-            exit(0)  # check
+            #print(args['train']['data-dir'])
+            #print(args['eval_model_path'])
+            #print(args['train']['total_timesteps'])
+            #print(args)
+            #exit(0)
         train(args, make_env, policy_cls, rnn_cls, wandb=wandb)
     elif args['mode'] in ('eval', 'evaluate'):
         vec = pufferlib.vector.Serial
