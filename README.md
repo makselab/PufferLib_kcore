@@ -18,6 +18,9 @@ This allows more efficient training and inference by taking advantage of symmetr
 
 > **Note:** These changes are experimental and tailored to research.
 
-In order to reproduce the collapsed results, follow the instructions in the file: model_collapsing_guide.
+In order to reproduce the collapsed results, follow the instructions in the file: model_collapsing_guide.MD
+
+
+
 The full documentation is hosted at [puffer.ai](https://puffer.ai "PufferLib Documentation"). @jsuarez5341 on [Discord](https://discord.gg/puffer) for support -- post here before opening issues.
 
