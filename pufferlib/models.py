@@ -127,12 +127,13 @@ class LSTMWrapper(nn.Module):
 
         x = x.reshape(B*TT, *space_shape)
         hidden, lookup = self.policy.encode_observations(x)
-        assert hidden.shape == (B*TT, self.input_size)
+        
 
         ## TODO pass the input to the function in a safier way instead of forcing the dimension. Generalize to more Games
         self.input_size = self.policy.network[7].out_features
         self.hidden_size = self.policy.actor.in_features
         
+        assert hidden.shape == (B*TT, self.input_size)
         hidden = hidden.reshape(B, TT, self.input_size)
 
         hidden = hidden.transpose(0, 1)
