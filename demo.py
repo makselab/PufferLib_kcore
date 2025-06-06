@@ -322,7 +322,7 @@ def train(args, make_env, policy_cls, rnn_cls, wandb,
         )
         
     # DECIDE WHICH POLICY FUNCTION TO USE. USED THE MODIFIED IF COLLAPSE!=0. Matteo Serafino
-    if args.collapse != 0:
+    if args['collapse'] != 0:
         policy = make_policy_kcore(vecenv.driver_env, policy_cls, rnn_cls, args)
     else:
         policy = make_policy(vecenv.driver_env, policy_cls, rnn_cls, args)

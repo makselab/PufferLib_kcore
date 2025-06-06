@@ -608,7 +608,8 @@ def make(env_creator_or_creators, env_args=None, env_kwargs=None, backend=Puffer
             batch_size = kwargs['batch_size']
             if batch_size is None:
                 batch_size = num_envs
-
+            #print(batch_size)
+            #print(envs_per_worker)
             if batch_size % envs_per_worker != 0:
                 raise APIUsageError(
                     'batch_size must be divisible by (num_envs / num_workers)')
