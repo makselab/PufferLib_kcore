@@ -325,13 +325,13 @@ def train(args, make_env, policy_cls, rnn_cls, wandb,
             overwork=args['vec_overwork'],
             backend=vec,
         )
+
         
     # DECIDE WHICH POLICY FUNCTION TO USE. USED THE MODIFIED IF COLLAPSE!=0. Matteo Serafino
     if args['collapse'] != 0:
         policy = make_policy_kcore(vecenv.driver_env, policy_cls, rnn_cls, args)
     else:
         policy = make_policy(vecenv.driver_env, policy_cls, rnn_cls, args)
-    
 
     '''
     if env_name == 'moba':
@@ -339,14 +339,14 @@ def train(args, make_env, policy_cls, rnn_cls, wandb,
         os.makedirs('moba_elo', exist_ok=True)
         torch.save(policy, os.path.join('moba_elo', 'model_random.pt'))
     '''
-
     train_config = pufferlib.namespace(**args['train'], env=env_name,
         exp_id=args['exp_id'] or env_name + '-' + str(uuid.uuid4())[:8])
     data = clean_pufferl.create(train_config, vecenv, policy, wandb=wandb)
+
     while data.global_step < train_config.total_timesteps:
         clean_pufferl.evaluate(data)
         clean_pufferl.train(data)
-
+    
     uptime = data.profile.uptime
     steps_evaluated = 0
     steps_to_eval = int(args['train']['total_timesteps'] * eval_frac)
@@ -473,7 +473,7 @@ def run_model_collapse(args, episode=50, default_folder='experiments'):
     print(f"[collapse] Saved collapsed model to: {model_out_path}")
 
     # Update args with new model path and data directory
-    args['train']['data-dir'] = output_folder
+    args['train']['data_dir'] = output_folder
     args['eval_model_path'] = model_out_path
 
     # Compute adjusted total_timesteps for exactly 300 training steps
@@ -605,10 +605,6 @@ if __name__ == '__main__':
         # Collapse the model before training. Matteo Serafino
         if args['collapse']!=0:
             run_model_collapse(args,episode = 50)
-            #print(args['train']['data-dir'])
-            #print(args['eval_model_path'])
-            #print(args['train']['total_timesteps'])
-            #print(args)
             #exit(0)
         train(args, make_env, policy_cls, rnn_cls, wandb=wandb)
     elif args['mode'] in ('eval', 'evaluate'):
