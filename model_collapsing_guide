@@ -88,6 +88,8 @@ experiments/
 │           ├── model_000300.pt
 │           └── log_collapsed.out
 
+The final results should be something like: 
+![Collapse Diagram](https://github.com/makselab/PufferLib_kcore/blob/2.0/Collapse.png?raw=true)
 
 DISCLAIMER
 ----------
