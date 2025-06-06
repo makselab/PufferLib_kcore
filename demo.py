@@ -21,7 +21,12 @@ import signal # Aggressively exit on ctrl+c
 signal.signal(signal.SIGINT, lambda sig, frame: os._exit(0))
 
 import clean_pufferl
-   
+
+
+import re
+import pickle
+from kcore_functions import *
+
 def make_policy(env, policy_cls, rnn_cls, args):
     policy = policy_cls(env, **args['policy'])
     if rnn_cls is not None:
@@ -370,6 +375,106 @@ def train(args, make_env, policy_cls, rnn_cls, wandb,
 
     return stats, uptime, elos, vecenv
 
+
+# Collapse function. Matteo Serafino
+def collapse_model(pt_file, threshold):
+    """
+    Loads a model and collapses its Linear and LSTM layers based on fiber clustering at the given threshold.
+
+    Args:
+        pt_file (str): Path to the model checkpoint (.pt file).
+        threshold (float): Fiber clustering threshold (typically between 0 and 2).
+
+    Returns:
+        Tuple[torch.nn.Module, dict]: Collapsed model and corresponding fiber clustering data.
+    """
+    
+    model = torch.load(pt_file, weights_only=False, map_location='cpu')
+    fibers = get_fibers_vs_time([pt_file], threshold)
+
+    clusters_linear = torch.tensor(fibers[(3, 'Linear(in_features=3456, out_features=512, bias=True)')][-1])
+    clusters_lstm = torch.tensor(fibers[(4, 'LSTM(512, 512)')][-1])
+
+    model_collapse_linear = collapse_linear_layer(model, clusters_linear)
+    new_linear_clusters = torch.arange(model_collapse_linear.policy.policy.network[7].weight.shape[0])
+    model_collapse_lstm = collapse_lstm(model_collapse_linear, new_linear_clusters, clusters_lstm)
+
+    return model_collapse_lstm, fibers
+
+
+# Run Collapse function. Matteo Serafino
+def run_model_collapse(args, episode=50, default_folder='experiments'):
+    """
+    Loads a model checkpoint, applies fiber-based layer collapsing, and saves the compressed model and fibers.
+
+    Args:
+        args (dict): Parsed arguments containing the 'collapse' threshold.
+        episode (int, optional): Target episode number to load (default is 50).
+        default_folder (str, optional): Root folder to search for .pt files (default is 'experiments').
+
+    Returns:
+        str or None: Path to the collapsed model if collapsing is performed; otherwise, None.
+    """
+    threshold_fiber = args['collapse']
+    if threshold_fiber == 0:
+        print("[collapse] Collapse is disabled (threshold = 0).")
+        return None
+
+    # Format episode like model_000050.pt
+    padded_episode = f"{episode:06d}"
+    expected_filename = f"model_{padded_episode}.pt"
+
+    # Find all .pt files in experiments
+    pt_files = sorted(glob.glob(os.path.join(default_folder, '**', 'model_*.pt'), recursive=True))
+    if not pt_files:
+        raise FileNotFoundError(f"No .pt files found under '{default_folder}'")
+
+    # Try to find exact match
+    target_file = None
+    for f in pt_files:
+        if f.endswith(expected_filename):
+            target_file = f
+            break
+
+    if not target_file:
+        print(f"[collapse] Default file '{expected_filename}' not found. Searching for closest.")
+        # Extract episode number from filenames
+        def extract_episode_num(path):
+            match = re.search(r'model_(\d{6})\.pt$', path)
+            return int(match.group(1)) if match else float('inf')
+
+        pt_files_with_episodes = [(f, extract_episode_num(f)) for f in pt_files]
+        pt_files_with_episodes = [(f, ep) for f, ep in pt_files_with_episodes if ep != float('inf')]
+
+        # Find closest episode
+        closest_file = min(pt_files_with_episodes, key=lambda x: abs(x[1] - episode))[0]
+        print(f"[collapse] Using closest checkpoint: {closest_file}")
+        target_file = closest_file
+        episode_used = f"{extract_episode_num(target_file):06d}"
+    else:
+        episode_used = padded_episode
+
+    print(f"[collapse] Collapsing model: {target_file} with threshold {threshold_fiber}")
+    model_collapse_lstm, fibers = collapse_model(target_file, threshold_fiber)
+
+    # Format threshold as two-digit int (e.g., 0.2 → 02, 1.2 → 12)
+    thr_id = f"{int(threshold_fiber * 10):02d}"
+    output_folder = os.path.join(os.path.dirname(target_file), f'collapsed_model_thr_{thr_id}_{episode_used}')
+    os.makedirs(output_folder, exist_ok=True)
+
+    # Save fibers
+    fibers_out_path = os.path.join(output_folder, 'fibers.pkl')
+    with open(fibers_out_path, 'wb') as f:
+        pickle.dump(fibers, f)
+
+    # Save collapsed model
+    model_out_path = os.path.join(output_folder, f'model_{episode_used}_collapsed.pt')
+    torch.save(model_collapse_lstm, model_out_path)
+
+    print(f"[collapse] Saved collapsed model to: {model_out_path}")
+    return model_out_path
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description=f':blowfish: PufferLib [bright_cyan]{pufferlib.__version__}[/]'
@@ -399,7 +504,7 @@ if __name__ == '__main__':
         help='Collapse level (float between 0 and 2, 0 = disabled)')
 
     args = parser.parse_known_args()[0]
-
+        
     # Manual range check. Matteo Serafino
     if not (0.0 <= args.collapse <= 2.0):
         raise ValueError(f"--collapse must be between 0 and 2 (got {args.collapse})")
@@ -480,6 +585,11 @@ if __name__ == '__main__':
         wandb = None
         if args['track']:
             wandb = init_wandb(args, env_name, id=args['exp_id'])
+
+        # Collapse the model before training. Matteo Serafino
+        if args['collapse']!=0:
+            run_model_collapse(args,episode = 50)
+            exit(0)  # check
         train(args, make_env, policy_cls, rnn_cls, wandb=wandb)
     elif args['mode'] in ('eval', 'evaluate'):
         vec = pufferlib.vector.Serial
