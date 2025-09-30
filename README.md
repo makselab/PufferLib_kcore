@@ -16,8 +16,9 @@ This enables more efficient training and inference by leveraging symmetries in t
 - Modified architecture components to allow group-invariant transformations.
 - Custom preprocessing pipeline adjustments to accommodate the symmetry reductions and symmetry breaking.
 
-In order to reproduce the collapsed results, follow the instructions in the file: [Model Collapsing Guide](model_collapsing_guide.MD)
+In order to use the code for fibration collapsed results, follow the instructions in the file: [Model Collapsing Guide](model_collapsing_guide.MD)
 
+To use the code for symmetry breaking, please refer to the Readme.md file.
 
 
 The full documentation of the underlying games is hosted at [puffer.ai](https://puffer.ai "PufferLib Documentation"). @jsuarez5341 on [Discord](https://discord.gg/puffer) for support -- post here before opening issues.
