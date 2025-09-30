@@ -5,7 +5,7 @@ This folder contains temporary files needed to run **breaking symmetries**.
 ## Current Usage (Hard Method)
 To run the breaking symmetries functionality, you need to **replace** the existing files in the repository with the versions provided in this folder:
 - `demo.py` → substitute the existing `demo.py`
-- `clean_puffer1.py` → substitute the existing `clean_puffer1.py`
+- `clean_pufferl.py` → substitute the existing `clean_pufferl.py`
 
 Additionally, the following files are **new** and must be included:
 - `breaking_symmetries.py`
