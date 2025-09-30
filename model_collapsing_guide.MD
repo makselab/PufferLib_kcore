@@ -1,10 +1,10 @@
-MODEL COLLAPSING IN PUFFERLIB: STEP-BY-STEP GUIDE
+MODEL COLLAPSING and SYMMETRY BREAKING IN PUFFERLIB AGENTS: STEP-BY-STEP GUIDE
 =================================================
 
-This guide walks through how to use the fiber-based model collapsing features 
-built into PufferLib to compress neural network layers and compare performance 
+This guide walks through how to use the fibration-based model collapsing features 
+built into PufferLib agents to compress neural network layers and compare performance 
 before and after compression. You'll run two training sessions and visualize 
-the effects of collapsing.
+the effects of collapsing using fibrations. The underlying architectures are typically composed of CCNs, LSTMs, and linear layers
 
 
 STEP 1: RUN BASELINE TRAINING
@@ -94,6 +94,5 @@ The final results should be something like:
 DISCLAIMER
 ----------
 - The --collapse feature must be implemented in your local fork of PufferLib.
-- Only Linear and LSTM layers are collapsed.
 - Choose meaningful thresholds (e.g., 0.2, 0.5, 1.0).
 - Always verify logs and fiber output to validate results.
