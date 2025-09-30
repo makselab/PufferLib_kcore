@@ -16,7 +16,7 @@ This enables more efficient training and inference by leveraging symmetries in t
 - Modified architecture components to allow group-invariant transformations.
 - Custom preprocessing pipeline adjustments to accommodate the symmetry reductions and symmetry breaking.
 
-In order to reproduce the collapsed results, follow the instructions in the file: [Model Collapsing Guide](model_collapsing_guide.md)
+In order to reproduce the collapsed results, follow the instructions in the file: [Model Collapsing Guide](model_collapsing_guide.MD)
 
 
 
