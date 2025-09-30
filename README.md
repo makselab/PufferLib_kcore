@@ -18,7 +18,7 @@ This enables more efficient training and inference by leveraging symmetries in t
 
 In order to use the code for fibration collapsed results, follow the instructions in the file: [Model Collapsing Guide](model_collapsing_guide.MD)
 
-To use the code for symmetry breaking, please refer to the [Breaking Readme.md](../breaking/README.md).
+To use the code for symmetry breaking, please refer to the [Breaking Readme.md](/breaking/readme.md).
 
 
 The full documentation of the underlying games is hosted at [puffer.ai](https://puffer.ai "PufferLib Documentation"). @jsuarez5341 on [Discord](https://discord.gg/puffer) for support -- post here before opening issues.
