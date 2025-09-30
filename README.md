@@ -1,4 +1,4 @@
-# PufferAI (Forked & Modified)
+# Fibration Symmetry and Symmetry Breaking for RL (Forked & Modified from PufferAI)
 
 This is a **fork** of the original [PufferAI repository](https://github.com/pufferai), with custom modifications.
 
