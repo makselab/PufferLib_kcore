@@ -11,7 +11,7 @@ Additionally, the following files are **new** and must be included:
 - `breaking_symmetries.py`
 - `coloring.py`
 
-# Breaking Symmetries: Parameters and Future Plan
+# Breaking Symmetries: Parameters
 
 ## Current Parameters
 The current implementation uses the following fixed settings:
@@ -27,9 +27,7 @@ After substituting the files, you can run breaking symmetries using the **classi
 python demo.py --mode train --vec multiprocessing --env beam_rider > log.out 2> log.err
 ```
 
-## Future Plan
-We are actively working on improving this process.  
-In the next update:
+## Next updates
 
 - Running breaking symmetries will be possible directly from the **command line**, without file substitution.  
 - Parameters such as `per_cover`, start episode, and frequency will no longer be fixed but **user-defined through input line options**.  
