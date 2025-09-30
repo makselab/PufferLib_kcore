@@ -11,11 +11,25 @@ Additionally, the following files are **new** and must be included:
 - `breaking_symmetries.py`
 - `coloring.py`
 
-## Future Plan
-We are actively working on improving this process.  
-In the future, running breaking symmetries will be possible directly from the **command line**, without needing to replace files manually.
+# Breaking Symmetries: Parameters and Future Plan
 
-For example, the usage may look like:
+## Current Parameters
+The current implementation uses the following fixed settings:
+
+- `per_cover = 0.5` → 50% of the non-trivial fibers will be broken automatically.  
+- Breaking starts **after 500 episodes**.  
+- After that, breaking occurs **every 300 episodes**.  
+
+## How to Run
+After substituting the files, you can run breaking symmetries using the **classic command**:
 
 ```bash
-python main.py --mode breaking_symmetries
+python demo.py --mode train --vec multiprocessing --env beam_rider > log.out 2> log.err
+```
+
+## Future Plan
+We are actively working on improving this process.  
+In the next update:
+
+- Running breaking symmetries will be possible directly from the **command line**, without file substitution.  
+- Parameters such as `per_cover`, start episode, and frequency will no longer be fixed but **user-defined through input line options**.  
