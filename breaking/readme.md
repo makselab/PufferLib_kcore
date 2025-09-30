@@ -1,6 +1,6 @@
-# Temporary Folder for Breaking Symmetries
+# Breaking Symmetries
 
-This folder contains temporary files needed to run **breaking symmetries**.  
+This folder contains files needed to run the **breaking symmetries** procedure on RL.  
 
 ## Current Usage (Hard Method)
 To run the breaking symmetries functionality, you need to **replace** the existing files in the repository with the versions provided in this folder:
