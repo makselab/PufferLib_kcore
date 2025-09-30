@@ -1,4 +1,4 @@
-MODEL COLLAPSING and SYMMETRY BREAKING IN PUFFERLIB AGENTS: STEP-BY-STEP GUIDE
+MODEL COLLAPSING AND SYMMETRY BREAKING IN PUFFERLIB AGENTS: STEP-BY-STEP GUIDE
 =================================================
 
 This guide walks through how to use the fibration-based model collapsing features 
